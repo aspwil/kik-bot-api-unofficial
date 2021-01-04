@@ -89,7 +89,11 @@ def jid_to_group_display_name(jid):
         client.request_info_of_users(jid)
         while waiting:
             time.sleep(1)
-        group_mates[jid] = str(user_object).split("display_name=")[1][0:-2]
+            name = str(user_object).split("display_name=")[1][0:-2]
+            if len(name) < 10:
+                group_mates[jid] = name
+            else:
+                group_mates[jid] = name[0:10]+"..."
         return group_mates[jid]
 
 
