@@ -48,13 +48,15 @@ class InteractiveChatClient(KikClientCallback):
 
     def on_group_message_received(self, chat_message: IncomingGroupChatMessage):
         global peer_jid, focus
-        if (chat_message.group_jid == peer_jid or focus is False):
+        if chat_message.group_jid == peer_jid or focus is False:
             try:
                 print("-------\n[GROUP]jid:{} - {}:\n{}: {}".format(get_group_jid_number(chat_message.group_jid),
-                                                                      friends[chat_message.group_jid].name,
-                                                                     jid_to_group_display_name(chat_message.from_jid), chat_message.body))
+                                                                    friends[chat_message.group_jid].name,
+                                                                    jid_to_group_display_name(chat_message.from_jid),
+                                                                    chat_message.body))
             except:
-                print("UH OH, WE GOT A MESSAGE FROM A GROUP NOT IN THE ROSTER, UNLESS THE PROGRAM IS STARTING RUN /refresh")
+                print(
+                    "UH OH, WE GOT A MESSAGE FROM A GROUP NOT IN THE ROSTER, UNLESS THE PROGRAM IS STARTING RUN /refresh")
                 print("-------\n[GROUP]jid:{} - GROUP NAME UNKNOWN:\n{}: {}".format(
                     get_group_jid_number(chat_message.group_jid), chat_message.from_jid, chat_message.body))
         else:
@@ -93,7 +95,7 @@ def jid_to_group_display_name(jid):
             if len(name) < 10:
                 group_mates[jid] = name
             else:
-                group_mates[jid] = name[0:10]+"..."
+                group_mates[jid] = name[0:10] + "..."
         return group_mates[jid]
 
 
