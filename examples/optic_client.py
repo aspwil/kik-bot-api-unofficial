@@ -112,7 +112,6 @@ def chat():
                 "/pic \"path to file.png\"  -  send a pic\n" +
                 "/focus  -  this makes only messages from the group your connected to appear\n" +
                 "/peer  -  list the peer you are currently connected to\n" +
-                "/kick pid - kicks someone from the group  your connected to" +
                 "Type a line to send a message.\n")
     print(help_str)
 
@@ -148,8 +147,6 @@ def chat():
 
             elif message.startswith("/groups"):
                 print("-GROUPS-\n{}".format("\n".join([m for m in groups])))
-            elif message.startswith("/kick "):
-                client.remove_peer_from_group(peer_jid, message[6:])
         else:
             if peer_jid != "0" and message:
                 client.send_chat_message(peer_jid, message)
