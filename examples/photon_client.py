@@ -56,9 +56,11 @@ class InteractiveChatClient(KikClientCallback):
                                                                     chat_message.body))
             except:
                 print(
-                    "UH OH, WE GOT A MESSAGE FROM A GROUP NOT IN THE ROSTER, UNLESS THE PROGRAM IS STARTING RUN /refresh")
-                print("-------\n[GROUP]jid:{} - GROUP NAME UNKNOWN:\n{}: {}".format(
-                    get_group_jid_number(chat_message.group_jid), chat_message.from_jid, chat_message.body))
+                    "XXXXXXXXXXXXX\n[WARNING]UH OH, WE GOT A MESSAGE FROM A GROUP NOT IN THE ROSTER, UNLESS THE PROGRAM IS STARTING RUN /refresh\nXXXXXXXXXXXXX")
+                print("-------\n[GROUP]jid:{} - {}:\n{}: {}".format(get_group_jid_number(chat_message.group_jid),
+                                                                    "UNKNOWN GROUP",
+                                                                    jid_to_group_display_name(chat_message.from_jid),
+                                                                    chat_message.body))
         else:
             """print("suppressed message from group ({}) {}".format(get_group_jid_number(chat_message.group_jid), friends[chat_message.group_jid].name))"""
 
@@ -71,6 +73,14 @@ class InteractiveChatClient(KikClientCallback):
 
     def on_group_status_received(self, response: IncomingGroupStatus):
         client.request_info_of_users(response.status_jid)
+        if response.status.find("has joined") > 0:
+            print("-------\n[JOIN]({}){} has joined the group ({})".format(response.status_jid,
+                                                            jid_to_group_display_name(response.status_jid),
+                                                            get_group_jid_number(response.group_jid)))
+        if response.status.find("has left") > 0:
+            print("-------\n[LEAVE]({}){} has left the group ({})".format(response.status_jid,
+                                                          jid_to_group_display_name(response.status_jid),
+                                                          get_group_jid_number(response.group_jid)))
 
     def on_peer_info_received(self, response: PeersInfoResponse):
         global waiting, user_object
@@ -111,7 +121,7 @@ def chat():
 
     help_str = ("-Usage-\n\n" +
                 "/help  -  displays this message\n" +
-                "/connect [first letters of username/jid]  -  Chat with peer\n" +
+                "/connect [first letters of username/group jid]  -  Chat with peer\n" +
                 "/refresh  -  refreshes roster (if anyone has friended / added you to a group)\n" +
                 "/dms  -  list all dms you have open\n" +
                 "/groups  -  list all groups you have open\n" +
@@ -152,10 +162,17 @@ def chat():
                 print("-DMS-\n{}".format("\n".join([m for m in dms])))
 
             elif message.startswith("/groups"):
-                print("-GROUPS-\n{}".format("\n".join([m for m in groups])))
+                groups_str = "-GROUPS-"
+                for g in groups:
+                    groups_str += "\n[GROUP]jid:" + g.split("_")[0][10:] + " - " + g.split("name=")[1].split(", code=")[
+                        0]
+                print(groups_str)
+
         else:
             if peer_jid != "0" and message:
                 client.send_chat_message(peer_jid, message)
+            elif message is None:
+                pass
             else:
                 print("you need to connect to someone first, use /connect [name/jid]")
 
