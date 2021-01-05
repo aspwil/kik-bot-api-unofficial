@@ -18,12 +18,10 @@ password = sys.argv[2] if len(sys.argv) > 2 else input('Password: ')
 
 friends = {}
 groups = []
-group_mates = {}
-user_object = None
+users = {}
 dms = []
 peer_jid = "0"
 focus = False
-waiting = False
 
 
 class InteractiveChatClient(KikClientCallback):
@@ -83,30 +81,25 @@ class InteractiveChatClient(KikClientCallback):
                                                           get_group_jid_number(response.group_jid)))
 
     def on_peer_info_received(self, response: PeersInfoResponse):
-        global waiting, user_object
-        user_object = response.users
-        waiting = False
+        users[str(response.users).split(", username=")[0][10:]] = response.users
 
 
 def jid_to_dm_username(jid):
     return jid.split('@')[0][0:-4]
 
 
-def jid_to_group_display_name(jid):
-    global waiting, user_object
-    if jid in group_mates:
-        return group_mates[jid]
+def query_user(jid):
+    if jid in users:
+        return users[jid]
     else:
-        waiting = True
         client.request_info_of_users(jid)
-        while waiting:
+        while jid not in users:
             time.sleep(1)
-            name = str(user_object).split("display_name=")[1][0:-2]
-            if len(name) < 10:
-                group_mates[jid] = name
-            else:
-                group_mates[jid] = name[0:10] + "..."
-        return group_mates[jid]
+        return users[jid]
+
+
+def jid_to_group_display_name(jid):
+    return str(query_user(jid)).split("display_name=")[1][0:-2]
 
 
 def get_group_jid_number(jid):
